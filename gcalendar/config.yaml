@@ -11,6 +11,6 @@ boot: auto
 panel_icon: mdi:calendar
 panel_title: Google Kalendář
 ingress: false
-webui: "http://[PROTO:tcp]://[HOST]:[PORT:8000]"
+webui: "http://[HOST]:[PORT:8000]"
 ports:
   8000/tcp: 8000
