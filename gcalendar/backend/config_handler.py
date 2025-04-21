@@ -1,10 +1,14 @@
-import json
 import os
+import json
 
 CONFIG_PATH = "/config/google_calendar_config.json"
 
 def load_config():
-    if os.path.exists(CONFIG_PATH):
-        with open(CONFIG_PATH) as f:
-            return json.load(f)
-    return {"calendars": []}
+    if not os.path.exists(CONFIG_PATH):
+        return {"calendars": []}
+    with open(CONFIG_PATH, "r") as file:
+        return json.load(file)
+
+def save_config(data):
+    with open(CONFIG_PATH, "w") as file:
+        json.dump(data, file, indent=2)
