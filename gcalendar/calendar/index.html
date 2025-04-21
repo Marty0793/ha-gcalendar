@@ -7,18 +7,26 @@
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js"></script>
   <style>
-    body {
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
       font-family: "Segoe UI", Roboto, sans-serif;
       background: #f1f3f4;
-      margin: 0;
-      padding: 2rem;
       color: #3c4043;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      padding: 2rem;
+      box-sizing: border-box;
     }
 
     h1 {
       font-size: 1.6rem;
       font-weight: 500;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
     }
 
     #lastUpdated {
@@ -27,11 +35,28 @@
       margin-bottom: 1rem;
     }
 
+    #calendarButton {
+      margin-bottom: 1rem;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      width: fit-content;
+    }
+
+    #calendarWrapper {
+      flex: 1;
+      overflow: auto;
+    }
+
     #calendar {
       background: white;
       border-radius: 12px;
       padding: 1rem;
       box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      height: 100%;
     }
 
     .fc .fc-button {
@@ -111,16 +136,6 @@
       color: #5f6368;
     }
 
-    #calendarButton {
-      margin-bottom: 1rem;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 0.5rem 1rem;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-
     #calendarSelect label {
       display: flex;
       align-items: center;
@@ -140,8 +155,10 @@
   <h1>📅 Google Kalendář</h1>
   <div id="lastUpdated">Naposledy aktualizováno: právě teď</div>
   <button id="calendarButton">📂 Kalendáře</button>
-  <div id="calendar"></div>
-  <!-- Dialog pro výběr kalendářů -->
+  <div id="calendarWrapper">
+    <div id="calendar"></div>
+  </div>
+
   <dialog id="calendarDialog">
     <form method="dialog">
       <h3>Vyber zobrazené kalendáře</h3>
@@ -153,26 +170,15 @@
     </form>
   </dialog>
 
-  <!-- Dialog pro úpravu/novou událost -->
   <dialog id="eventDialog">
     <form method="dialog">
       <h3 id="dialogTitle">Událost</h3>
       <input type="hidden" id="eventId">
-      <label>Titulek:<br>
-        <input type="text" id="eventTitle" required>
-      </label>
-      <label>Začátek:<br>
-        <input type="datetime-local" id="eventStart" required>
-      </label>
-      <label>Konec:<br>
-        <input type="datetime-local" id="eventEnd" required>
-      </label>
-      <label>Kalendář:<br>
-        <select id="eventCalendar"></select>
-      </label>
-      <label>Barva:<br>
-        <input type="color" id="eventColor">
-      </label>
+      <label>Titulek:<br><input type="text" id="eventTitle" required></label>
+      <label>Začátek:<br><input type="datetime-local" id="eventStart" required></label>
+      <label>Konec:<br><input type="datetime-local" id="eventEnd" required></label>
+      <label>Kalendář:<br><select id="eventCalendar"></select></label>
+      <label>Barva:<br><input type="color" id="eventColor"></label>
       <menu>
         <button type="submit" id="saveBtn">💾 Uložit</button>
         <button type="button" onclick="eventDialog.close()">❌ Zavřít</button>
@@ -199,7 +205,6 @@
     async function loadCalendars() {
       const res = await fetch('/api/calendars');
       calendars = await res.json();
-
       const config = await fetch('/api/config').then(r => r.json());
       selectedCalendars = config.calendars || [];
 
@@ -209,7 +214,6 @@
         checkbox.type = 'checkbox';
         checkbox.value = cal.id;
         checkbox.checked = selectedCalendars.includes(cal.id);
-
         const label = document.createElement('label');
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(' ' + cal.summary));
@@ -245,6 +249,7 @@
         initialView: 'dayGridMonth',
         locale: 'cs',
         firstDay: 1,
+        height: '100%',
         editable: false,
         selectable: true,
         eventClick: onEventClick,
@@ -264,7 +269,6 @@
 
       calendar.render();
 
-      // 🔁 Automatická aktualizace každých 5 minut
       setInterval(() => {
         console.log("[AutoRefresh] Obnovuji události...");
         calendar.refetchEvents();
@@ -274,18 +278,13 @@
     function updateLastUpdated() {
       const now = new Date();
       const formatted = now.toLocaleTimeString("cs-CZ", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
+        hour: "2-digit", minute: "2-digit", second: "2-digit"
       });
       lastUpdatedEl.textContent = `Naposledy aktualizováno: ${formatted}`;
     }
 
     function onDateClick(info) {
-      openDialog({
-        start: info.dateStr + 'T09:00',
-        end: info.dateStr + 'T10:00'
-      });
+      openDialog({ start: info.dateStr + 'T09:00', end: info.dateStr + 'T10:00' });
     }
 
     function onEventClick(info) {
