@@ -14,10 +14,11 @@ CONFIG_PATH = '/config/google_calendar_config.json'
 def init_auth():
     if not os.path.exists(TOKEN_PATH):
         flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
-        creds = flow.run_local_server(port=0)  # 👈 toto je potřeba upravit
-        with open(TOKEN_PATH, 'w') as token:
-            token.write(creds.to_json())
-    return {"status": "OK"}
+        auth_url, _ = flow.authorization_url(prompt='consent')
+        print(f"👉 Navštiv tuto adresu pro přihlášení:\n{auth_url}")
+        return {"auth_url": auth_url}
+    return {"status": "already_authenticated"}
+
 
 def get_service():
     creds = None
