@@ -1,16 +1,15 @@
 name: Google Calendar
 version: "1.0.0"
 slug: gcalendar
-description: Zobrazí Google Kalendář v HA jako iframe
+description: Zobrazí Google Kalendář jako dlaždici v Home Assistantu.
 arch:
   - amd64
-  - armv7
   - aarch64
+  - armv7
 startup: services
 boot: auto
 panel_icon: mdi:calendar
 panel_title: Google Kalendář
-panel_admin: false
 ingress: false
 webui: http://[HOST]:8000
 ports:
