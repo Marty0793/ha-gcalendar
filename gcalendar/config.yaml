@@ -1,5 +1,5 @@
 name: Google Calendar
-version: "1.0.5"
+version: "1.0.6"
 slug: gcalendar
 description: Zobrazí Google Kalendář jako dlaždici v Home Assistantu.
 arch:
@@ -11,9 +11,10 @@ boot: auto
 panel_icon: mdi:calendar
 panel_title: Google Kalendář
 ingress: false
-webui: "http://[HOST]:[PORT:8000]"
+webui: "https://[HOST]:[PORT:8000]"
 ports:
   8000/tcp: 8000
 map:
   - config:rw
+  - ssl:ro
 host_network: true
