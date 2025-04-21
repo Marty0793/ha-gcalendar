@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from google_api import get_events, list_calendars, init_auth
-from backend.config_handler import load_config
+from config_handler import load_config
 
 app = Flask(__name__, static_folder="../calendar")
 
