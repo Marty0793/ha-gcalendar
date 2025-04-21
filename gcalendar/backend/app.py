@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from google_api import get_events, list_calendars, init_auth, exchange_code
-from config_handler import load_config
+from config_handler import load_config, save_config
 
 app = Flask(__name__, static_folder="../calendar")
 
@@ -31,6 +31,15 @@ def token():
         return jsonify({"status": "authenticated"})
     else:
         return jsonify({"error": "failed to exchange code"}), 500
+
+@app.route("/api/config", methods=["GET", "POST"])
+def config():
+    if request.method == "GET":
+        return jsonify(load_config())
+    if request.method == "POST":
+        new_config = request.get_json()
+        save_config(new_config)
+        return jsonify({"status": "saved"})
 
 if __name__ == "__main__":
     print("✅ Flask HTTPS backend started!")
