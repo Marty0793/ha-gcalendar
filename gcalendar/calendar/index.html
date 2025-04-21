@@ -18,6 +18,12 @@
     h1 {
       font-size: 1.6rem;
       font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    #lastUpdated {
+      font-size: 0.9rem;
+      color: #666;
       margin-bottom: 1rem;
     }
 
@@ -115,10 +121,6 @@
       cursor: pointer;
     }
 
-    #calendarDialog label {
-      display: block;
-      margin-bottom: 0.5rem;
-    }
     #calendarSelect label {
       display: flex;
       align-items: center;
@@ -126,20 +128,19 @@
       padding: 0.4rem 0;
       font-size: 1rem;
     }
-      
+
     #calendarSelect input[type="checkbox"] {
       width: 18px;
       height: 18px;
       accent-color: #1a73e8;
     }
-      
   </style>
 </head>
 <body>
   <h1>📅 Google Kalendář</h1>
+  <div id="lastUpdated">Naposledy aktualizováno: právě teď</div>
   <button id="calendarButton">📂 Kalendáře</button>
   <div id="calendar"></div>
-
   <!-- Dialog pro výběr kalendářů -->
   <dialog id="calendarDialog">
     <form method="dialog">
@@ -159,19 +160,19 @@
       <input type="hidden" id="eventId">
       <label>Titulek:<br>
         <input type="text" id="eventTitle" required>
-      </label><br>
+      </label>
       <label>Začátek:<br>
         <input type="datetime-local" id="eventStart" required>
-      </label><br>
+      </label>
       <label>Konec:<br>
         <input type="datetime-local" id="eventEnd" required>
-      </label><br>
+      </label>
       <label>Kalendář:<br>
         <select id="eventCalendar"></select>
-      </label><br>
+      </label>
       <label>Barva:<br>
         <input type="color" id="eventColor">
-      </label><br>
+      </label>
       <menu>
         <button type="submit" id="saveBtn">💾 Uložit</button>
         <button type="button" onclick="eventDialog.close()">❌ Zavřít</button>
@@ -185,6 +186,8 @@
     const calendarSelect = document.getElementById('calendarSelect');
     const eventDialog = document.getElementById('eventDialog');
     const calendarDialog = document.getElementById('calendarDialog');
+    const lastUpdatedEl = document.getElementById('lastUpdated');
+
     let calendars = [];
     let selectedCalendars = [];
     let calendar;
@@ -234,13 +237,14 @@
         body: JSON.stringify({calendars: selectedCalendars})
       });
       calendar.refetchEvents();
+      updateLastUpdated();
     }
 
     function initCalendar() {
       calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        firstDay: 1,
         locale: 'cs',
+        firstDay: 1,
         editable: false,
         selectable: true,
         eventClick: onEventClick,
@@ -248,15 +252,33 @@
         events: async (info, successCallback) => {
           const res = await fetch('/api/events');
           const data = await res.json();
-        successCallback(data.map(e => ({
-          ...e,
-          allDay: e.allDay,
-          backgroundColor: e.color || '#3788d8',
-          borderColor: e.color || '#3788d8'
-        })));
+          updateLastUpdated();
+          successCallback(data.map(e => ({
+            ...e,
+            allDay: e.allDay,
+            backgroundColor: e.color || '#3788d8',
+            borderColor: e.color || '#3788d8'
+          })));
         }
       });
+
       calendar.render();
+
+      // 🔁 Automatická aktualizace každých 5 minut
+      setInterval(() => {
+        console.log("[AutoRefresh] Obnovuji události...");
+        calendar.refetchEvents();
+      }, 5 * 60 * 1000);
+    }
+
+    function updateLastUpdated() {
+      const now = new Date();
+      const formatted = now.toLocaleTimeString("cs-CZ", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+      lastUpdatedEl.textContent = `Naposledy aktualizováno: ${formatted}`;
     }
 
     function onDateClick(info) {
@@ -325,6 +347,7 @@
       }
       eventDialog.close();
       calendar.refetchEvents();
+      updateLastUpdated();
     };
 
     document.getElementById('deleteBtn').onclick = async () => {
@@ -333,6 +356,7 @@
         await fetch(`/api/event/${id}`, { method: 'DELETE' });
         eventDialog.close();
         calendar.refetchEvents();
+        updateLastUpdated();
       }
     };
 
