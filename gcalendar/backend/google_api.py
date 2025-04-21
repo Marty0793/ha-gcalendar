@@ -56,28 +56,41 @@ def get_events(config):
     service = get_service()
     if not service:
         return []
+
     calendar_ids = config.get("calendars", [])
     now = datetime.datetime.utcnow().isoformat() + 'Z'
-    result = []
 
-    for cal_id in calendar_ids:
+    # Načti mapu barev
+    color_data = service.colors().get().execute()
+    event_colors = color_data.get("event", {})
+
+    events_result = []
+
+    for calendar_id in calendar_ids:
         events = service.events().list(
-            calendarId=cal_id,
+            calendarId=calendar_id,
             timeMin=now,
             maxResults=100,
             singleEvents=True,
             orderBy='startTime'
         ).execute()
+
         for e in events.get('items', []):
-            result.append({
-                "id": e["id"],
+            color_id = e.get("colorId")
+            background = event_colors.get(color_id, {}).get("background", "#3788d8")
+
+            events_result.append({
+                "id": e.get("id"),
                 "title": e.get("summary", "(bez názvu)"),
                 "start": e["start"].get("dateTime", e["start"].get("date")),
                 "end": e["end"].get("dateTime", e["end"].get("date")),
-                "calendar": cal_id,
-                "color": e.get("colorId")  # volitelné, pro barevné události
+                "allDay": "date" in e["start"],
+                "calendar": calendar_id,
+                "color": background
             })
-    return result
+
+    return events_result
+
 
 def create_event(data):
     service = get_service()
