@@ -14,7 +14,7 @@ CONFIG_PATH = '/config/google_calendar_config.json'
 def init_auth():
     if not os.path.exists(TOKEN_PATH):
         flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
-        creds = flow.run_local_server(port=0)
+        creds = flow.run_local_server(port=0)  # 👈 toto je potřeba upravit
         with open(TOKEN_PATH, 'w') as token:
             token.write(creds.to_json())
     return {"status": "OK"}
