@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory
-from google_api import get_events, list_calendars, init_auth, exchange_code
+from google_api import get_events, list_calendars, init_auth, exchange_code, create_event, update_event, delete_event
 from config_handler import load_config, save_config
 
 app = Flask(__name__, static_folder="../calendar")
@@ -40,6 +40,20 @@ def config():
         new_config = request.get_json()
         save_config(new_config)
         return jsonify({"status": "saved"})
+
+@app.route("/api/event", methods=["POST"])
+def add_event():
+    data = request.get_json()
+    return jsonify(create_event(data))
+
+@app.route("/api/event/<event_id>", methods=["PUT"])
+def edit_event(event_id):
+    data = request.get_json()
+    return jsonify(update_event(event_id, data))
+
+@app.route("/api/event/<event_id>", methods=["DELETE"])
+def remove_event(event_id):
+    return jsonify(delete_event(event_id))
 
 if __name__ == "__main__":
     print("✅ Flask HTTPS backend started!")
