@@ -1,0 +1,17 @@
+name: Google Calendar
+version: "1.0.0"
+slug: gcalendar
+description: Zobrazí Google Kalendář v HA jako iframe
+arch:
+  - amd64
+  - armv7
+  - aarch64
+startup: services
+boot: auto
+panel_icon: mdi:calendar
+panel_title: Google Kalendář
+panel_admin: false
+ingress: false
+webui: http://[HOST]:8000
+ports:
+  8000/tcp: 8000
