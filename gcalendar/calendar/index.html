@@ -3,36 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <title>Google Kalendář</title>
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 0; }
-    #calendar { max-width: 900px; margin: 40px auto; }
+    body {
+      font-family: sans-serif;
+      margin: 2rem;
+    }
+    #calendar {
+      max-width: 900px;
+      margin: auto;
+    }
+    #calendarSelect {
+      margin-bottom: 1rem;
+    }
+    .fc-event {
+      cursor: pointer;
+    }
+    dialog {
+      padding: 1rem;
+    }
   </style>
 </head>
 <body>
+  <h1>📅 Google Kalendář</h1>
+  <label>Vyber kalendáře:</label>
+  <div id="calendarSelect"></div>
   <div id="calendar"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <dialog id="eventDialog">
+    <form method="dialog">
+      <h3 id="dialogTitle">Událost</h3>
+      <input type="hidden" id="eventId">
+      <label>Titulek:<br>
+        <input type="text" id="eventTitle" required>
+      </label><br><br>
+      <label>Začátek:<br>
+        <input type="datetime-local" id="eventStart" required>
+      </label><br><br>
+      <label>Konec:<br>
+        <input type="datetime-local" id="eventEnd" required>
+      </label><br><br>
+      <label>Kalendář:<br>
+        <select id="eventCalendar"></select>
+      </label><br><br>
+      <label>Barva:<br>
+        <input type="color" id="eventColor">
+      </label><br><br>
+      <menu>
+        <button type="submit" id="saveBtn">💾 Uložit</button>
+        <button type="button" onclick="dialog.close()">❌ Zavřít</button>
+        <button type="button" id="deleteBtn">🗑️ Smazat</button>
+      </menu>
+    </form>
+  </dialog>
+
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var calendarEl = document.getElementById('calendar');
-
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        events: async function(fetchInfo, successCallback, failureCallback) {
-          try {
-            const res = await fetch('/api/events');
-            const events = await res.json();
-            successCallback(events);
-          } catch (e) {
-            failureCallback(e);
-          }
-        }
-      });
-
-      calendar.render();
-    });
-  </script>
-</body>
-</html>
-
+    const calendarEl = document.getElementById('calendar');
+    const calendarSelect = document.getElementById('calendarSelect');
+    const dialog = document.getElementById('eventDialog');
+    let calendars = [];
