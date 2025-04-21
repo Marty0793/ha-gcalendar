@@ -9,6 +9,9 @@ SCOPES = ['https://www.googleapis.com/auth/calendar']
 CREDENTIALS_PATH = '/config/credentials.json'
 TOKEN_PATH = '/config/token.json'
 
+# 🔁 Přidáno: cache pro barvy událostí
+_cached_colors = None
+
 def init_auth():
     if not os.path.exists(TOKEN_PATH):
         flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
@@ -53,6 +56,9 @@ def list_calendars():
     return result
 
 def get_events(config):
+    import time
+    start_debug = time.time()
+
     service = get_service()
     if not service:
         return []
@@ -60,9 +66,13 @@ def get_events(config):
     calendar_ids = config.get("calendars", [])
     now = datetime.datetime.utcnow().isoformat() + 'Z'
 
-    # Načti mapu barev
-    color_data = service.colors().get().execute()
-    event_colors = color_data.get("event", {})
+    # 🔁 Použijeme cache pro barvy
+    global _cached_colors
+    if not _cached_colors:
+        print("[DEBUG] Načítám barvy událostí z Google API...")
+        color_data = service.colors().get().execute()
+        _cached_colors = color_data.get("event", {})
+    event_colors = _cached_colors
 
     events_result = []
 
@@ -70,7 +80,7 @@ def get_events(config):
         events = service.events().list(
             calendarId=calendar_id,
             timeMin=now,
-            maxResults=100,
+            maxResults=20,  # 🔽 Původně 100 – pro rychlejší načítání
             singleEvents=True,
             orderBy='startTime'
         ).execute()
@@ -79,18 +89,25 @@ def get_events(config):
             color_id = e.get("colorId")
             background = event_colors.get(color_id, {}).get("background", "#3788d8")
 
+            # 🧠 Korektní handlování celodenních událostí
+            start = e["start"].get("dateTime", e["start"].get("date"))
+            end = e["end"].get("dateTime", e["end"].get("date"))
+            if "date" in e["start"] and end == start:
+                end_date = datetime.datetime.strptime(end, "%Y-%m-%d") + datetime.timedelta(days=1)
+                end = end_date.strftime("%Y-%m-%d")
+
             events_result.append({
                 "id": e.get("id"),
                 "title": e.get("summary", "(bez názvu)"),
-                "start": e["start"].get("dateTime", e["start"].get("date")),
-                "end": e["end"].get("dateTime", e["end"].get("date")),
+                "start": start,
+                "end": end,
                 "allDay": "date" in e["start"],
                 "calendar": calendar_id,
                 "color": background
             })
 
+    print(f"[DEBUG] get_events hotovo za {time.time() - start_debug:.2f} s")
     return events_result
-
 
 def create_event(data):
     service = get_service()
