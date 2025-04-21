@@ -245,11 +245,12 @@
         events: async (info, successCallback) => {
           const res = await fetch('/api/events');
           const data = await res.json();
-          successCallback(data.map(e => ({
-            ...e,
-            backgroundColor: e.color || '#3788d8',
-            borderColor: e.color || '#3788d8'
-          })));
+        successCallback(data.map(e => ({
+          ...e,
+          allDay: e.allDay,
+          backgroundColor: e.color || '#3788d8',
+          borderColor: e.color || '#3788d8'
+        })));
         }
       });
       calendar.render();
