@@ -23,3 +23,15 @@ def events():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
+    
+@app.route("/api/token", methods=["GET"])
+def token():
+    from backend.google_api import exchange_code
+    code = request.args.get("code")
+    if not code:
+        return jsonify({"error": "missing code"}), 400
+    success = exchange_code(code)
+    if success:
+        return jsonify({"status": "authenticated"})
+    else:
+        return jsonify({"error": "failed to exchange code"}), 500
