@@ -66,3 +66,19 @@ def get_events(config):
                 "calendar": calendar_id
             })
     return events_result
+
+def exchange_code(code):
+    try:
+        flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
+        flow.redirect_uri = 'http://localhost'  # musí odpovídat credentials.json
+        flow.fetch_token(code=code)
+
+        creds = flow.credentials
+        with open(TOKEN_PATH, 'w') as token:
+            token.write(creds.to_json())
+        print("✅ Token saved successfully.")
+        return True
+    except Exception as e:
+        print(f"[Token Exchange Error] {e}")
+        return False
+
