@@ -16,3 +16,4 @@ ports:
   8000/tcp: 8000
 map:
   - config:rw
+host_network: true
