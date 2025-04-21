@@ -1,0 +1,6 @@
+{
+  "name": "Google Kalendář pro Home Assistant",
+  "udev": true,
+  "url": "https://github.com/Marty0793/ha-gcalendar",
+  "maintainer": "Marty0793"
+}
