@@ -63,3 +63,147 @@
     const calendarSelect = document.getElementById('calendarSelect');
     const dialog = document.getElementById('eventDialog');
     let calendars = [];
+    let selectedCalendars = [];
+    let calendar;
+
+    async function loadCalendars() {
+      const res = await fetch('/api/calendars');
+      calendars = await res.json();
+
+      const config = await fetch('/api/config').then(r => r.json());
+      selectedCalendars = config.calendars || [];
+
+      calendarSelect.innerHTML = '';
+      calendars.forEach(cal => {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = cal.id;
+        checkbox.checked = selectedCalendars.includes(cal.id);
+        checkbox.onchange = saveCalendarSelection;
+
+        const label = document.createElement('label');
+        label.style.marginRight = '1rem';
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(' ' + cal.summary));
+        calendarSelect.appendChild(label);
+      });
+
+      if (!selectedCalendars.length) {
+        selectedCalendars = calendars.map(c => c.id);
+        await saveCalendarSelection();
+      }
+
+      initCalendar();
+    }
+
+    async function saveCalendarSelection() {
+      selectedCalendars = Array.from(calendarSelect.querySelectorAll('input:checked')).map(cb => cb.value);
+      await fetch('/api/config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({calendars: selectedCalendars})
+      });
+      calendar.refetchEvents();
+    }
+
+    function initCalendar() {
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        editable: false,
+        selectable: true,
+        eventClick: onEventClick,
+        dateClick: onDateClick,
+        events: async (info, successCallback) => {
+          const res = await fetch('/api/events');
+          const data = await res.json();
+          successCallback(data.map(e => ({
+            ...e,
+            backgroundColor: e.color || '#3788d8',
+            borderColor: e.color || '#3788d8'
+          })));
+        }
+      });
+      calendar.render();
+    }
+
+    function onDateClick(info) {
+      openDialog({
+        start: info.dateStr + 'T09:00',
+        end: info.dateStr + 'T10:00'
+      });
+    }
+
+    function onEventClick(info) {
+      const e = info.event;
+      openDialog({
+        id: e.id,
+        title: e.title,
+        start: e.startStr,
+        end: e.endStr,
+        calendar: e.extendedProps.calendar,
+        color: e.backgroundColor
+      });
+    }
+
+    function openDialog(event = {}) {
+      document.getElementById('dialogTitle').textContent = event.id ? 'Upravit událost' : 'Přidat událost';
+      document.getElementById('eventId').value = event.id || '';
+      document.getElementById('eventTitle').value = event.title || '';
+      document.getElementById('eventStart').value = event.start?.slice(0, 16) || '';
+      document.getElementById('eventEnd').value = event.end?.slice(0, 16) || '';
+      document.getElementById('eventColor').value = event.color || '#3788d8';
+
+      const calendarSelect = document.getElementById('eventCalendar');
+      calendarSelect.innerHTML = '';
+      calendars.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.id;
+        option.text = c.summary;
+        if (event.calendar === c.id) option.selected = true;
+        calendarSelect.appendChild(option);
+      });
+
+      dialog.showModal();
+    }
+
+    document.getElementById('saveBtn').onclick = async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('eventId').value;
+      const data = {
+        title: document.getElementById('eventTitle').value,
+        start: document.getElementById('eventStart').value,
+        end: document.getElementById('eventEnd').value,
+        color: document.getElementById('eventColor').value,
+        calendar: document.getElementById('eventCalendar').value
+      };
+
+      if (id) {
+        await fetch(`/api/event/${id}`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+      } else {
+        await fetch('/api/event', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+      }
+      dialog.close();
+      calendar.refetchEvents();
+    };
+
+    document.getElementById('deleteBtn').onclick = async () => {
+      const id = document.getElementById('eventId').value;
+      if (id && confirm('Opravdu chceš smazat tuto událost?')) {
+        await fetch(`/api/event/${id}`, { method: 'DELETE' });
+        dialog.close();
+        calendar.refetchEvents();
+      }
+    };
+
+    loadCalendars();
+  </script>
+</body>
+</html>
