@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify, send_from_directory
 from google_api import get_events, list_calendars, init_auth, exchange_code, create_event, update_event, delete_event
 from config_handler import load_config, save_config
 
+import os
+import json
+
 app = Flask(__name__, static_folder="../calendar")
 
 @app.route("/")
@@ -56,18 +59,49 @@ def remove_event(event_id):
     return jsonify(delete_event(event_id))
 
 if __name__ == "__main__":
-    import json
+    print("✅ Flask HTTPS backend starting")
 
-    with open("/data/options.json") as f:
-        config = json.load(f)
+    try:
+        with open("/data/options.json") as f:
+            config = json.load(f)
+    except Exception as e:
+        print("❌ ERROR: Unable to load /data/options.json:", str(e))
+        exit(1)
 
     cert = config.get("certfile", "/data/cert.pem")
     key = config.get("keyfile", "/data/privkey.pem")
 
-    print("✅ Flask HTTPS backend started!")
+    print("📄 Loaded options.json:")
+    print(json.dumps(config, indent=2))
+
+    print(f"🔍 Cert path: {cert}")
+    print(f"🔍 Key path:  {key}")
+
+    print("📁 Contents of /data:")
+    try:
+        print(os.listdir("/data"))
+    except Exception as e:
+        print("❌ Unable to list /data:", str(e))
+
+    print("📁 Contents of /data/gcalendar:")
+    try:
+        print(os.listdir("/data/gcalendar"))
+    except Exception as e:
+        print("❌ Unable to list /data/gcalendar:", str(e))
+
+    if not os.path.exists(cert):
+        print(f"❌ Cert file does NOT exist: {cert}")
+    else:
+        print(f"✅ Cert file found: {cert}")
+
+    if not os.path.exists(key):
+        print(f"❌ Key file does NOT exist: {key}")
+    else:
+        print(f"✅ Key file found: {key}")
+
+    print("🚀 Starting Flask with SSL")
     app.run(
         host="0.0.0.0",
         port=8000,
         ssl_context=(cert, key)
     )
-
