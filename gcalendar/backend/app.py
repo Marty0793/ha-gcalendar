@@ -56,9 +56,18 @@ def remove_event(event_id):
     return jsonify(delete_event(event_id))
 
 if __name__ == "__main__":
+    import json
+
+    with open("/data/options.json") as f:
+        config = json.load(f)
+
+    cert = config.get("certfile", "/data/cert.pem")
+    key = config.get("keyfile", "/data/privkey.pem")
+
     print("✅ Flask HTTPS backend started!")
     app.run(
         host="0.0.0.0",
         port=8000,
-        ssl_context=("/ssl/fullchain.pem", "/ssl/privkey.pem")
+        ssl_context=(cert, key)
     )
+

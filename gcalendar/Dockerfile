@@ -4,15 +4,15 @@ FROM python:3.11-slim
 # Nastavení pracovní složky
 WORKDIR /app
 
-# Instalace potřebných knihoven
-COPY requirements.txt .
+# Instalace požadavků
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Zkopírování celého projektu
 COPY . .
 
-# Oprávnění pro spustitelný skript (pokud používáš run.sh)
-RUN chmod +x /app/run.sh
+# Nastavíme spustitelnost skriptu
+RUN chmod +x /run.sh
 
-# Spuštění aplikace (spustíme přímo app.py z backend/)
-CMD ["python3", "backend/app.py"]
+# Výchozí příkaz (spouští vše)
+CMD ["/run.sh"]

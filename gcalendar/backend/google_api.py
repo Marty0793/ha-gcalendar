@@ -6,8 +6,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-CREDENTIALS_PATH = '/config/credentials.json'
-TOKEN_PATH = '/config/token.json'
+CREDENTIALS_PATH = '/data/credentials.json'
+TOKEN_PATH = '/data/token.json'
 
 # 🔁 Přidáno: cache pro barvy událostí
 _cached_colors = None

@@ -1,7 +1,7 @@
 import os
 import json
 
-CONFIG_PATH = "/config/google_calendar_config.json"
+CONFIG_PATH = "/data/google_calendar_config.json"
 
 def load_config():
     if not os.path.exists(CONFIG_PATH):
