@@ -83,12 +83,6 @@ if __name__ == "__main__":
     except Exception as e:
         print("❌ Unable to list /data:", str(e))
 
-    print("📁 Contents of /data/gcalendar:")
-    try:
-        print(os.listdir("/data/gcalendar"))
-    except Exception as e:
-        print("❌ Unable to list /data/gcalendar:", str(e))
-
     if not os.path.exists(cert):
         print(f"❌ Cert file does NOT exist: {cert}")
     else:
