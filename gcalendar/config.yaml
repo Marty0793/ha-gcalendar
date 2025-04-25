@@ -1,5 +1,5 @@
 name: Google Calendar
-version: "1.0.15"
+version: "1.0.16"
 slug: gcalendar
 description: Zobrazí Google Kalendář jako dlaždici v Home Assistantu.
 arch:
