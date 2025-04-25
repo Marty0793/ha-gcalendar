@@ -17,6 +17,6 @@ schema:
 ports:
   8000/tcp: 8000
 map:
-  - addons_config:rw
+  - "addons_config:rw"
 webui: "https://[HOST]:[PORT:8000]"
 host_network: true
