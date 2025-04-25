@@ -11,8 +11,8 @@
   "startup": "services",
   "boot": "auto",
   "options": {
-    "certfile": "/data/gcalendar/cert.pem",
-    "keyfile": "/data/gcalendar/privkey.pem"
+    "certfile": "/data/cert.pem",
+    "keyfile": "/data/privkey.pem"
   },
   "schema": {
     "certfile": "str",
@@ -22,7 +22,7 @@
     "8000/tcp": 8000
   },
   "map": [
-    "addon_config:rw"
+    "config:rw"
   ],
   "webui": "https://[HOST]:[PORT:8000]",
   "host_network": true
