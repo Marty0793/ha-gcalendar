@@ -1,5 +1,3 @@
 name: Google Kalendář pro Home Assistant
 url: https://github.com/Marty0793/ha-gcalendar
 maintainer: Marty0793
-addons:
-  - gcalendar
