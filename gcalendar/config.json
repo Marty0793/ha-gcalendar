@@ -11,8 +11,8 @@
   "startup": "services",
   "boot": "auto",
   "options": {
-    "certfile": "/data/cert.pem",
-    "keyfile": "/data/privkey.pem"
+    "certfile": "/config/addons_config/gcalendar/cert.pem",
+    "keyfile": "/config/addons_config/gcalendar/privkey.pem"
   },
   "schema": {
     "certfile": "str",

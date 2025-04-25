@@ -68,8 +68,8 @@ if __name__ == "__main__":
         print("❌ ERROR: Unable to load /data/options.json:", str(e))
         exit(1)
 
-    cert = config.get("certfile", "/data/cert.pem")
-    key = config.get("keyfile", "/data/privkey.pem")
+    cert = config.get("certfile", "/config/addons_config/gcalendar/cert.pem")
+    key = config.get("keyfile", "/config/addons_config/gcalendar/privkey.pem")
 
     print("📄 Loaded options.json:")
     print(json.dumps(config, indent=2))
