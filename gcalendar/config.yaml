@@ -9,8 +9,8 @@ arch:
 startup: services
 boot: auto
 options:
-  certfile: /data/gcalendar/cert.pem
-  keyfile: /data/gcalendar/privkey.pem
+  certfile: /data/cert.pem
+  keyfile: /data/privkey.pem
 schema:
   certfile: str
   keyfile: str
