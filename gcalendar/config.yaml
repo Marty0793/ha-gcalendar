@@ -16,7 +16,5 @@ schema:
   keyfile: str
 ports:
   8000/tcp: 8000
-map:
-  - addons_config
 webui: "https://[HOST]:[PORT:8000]"
 host_network: true
