@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Nastavíme spustitelnost skriptu
-RUN chmod +x /run.sh
+RUN chmod +x /app/run.sh
 
 # Výchozí příkaz (spouští vše)
-CMD ["/run.sh"]
+CMD ["/app/run.sh"]
